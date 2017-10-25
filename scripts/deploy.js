@@ -1,5 +1,5 @@
-var FtpDeploy = require('ftp-deploy');
-var ftpDeploy = new FtpDeploy();
+let FtpDeploy = require('ftp-deploy');
+let ftpDeploy = new FtpDeploy();
 
 let username = process.argv[2];
 let password = process.argv[3];
@@ -10,8 +10,12 @@ var config = {
 	host: "muxe.org",
 	port: 21,
 	localRoot: __dirname + "/../dist",
-	remoteRoot: "/muxe.org/travis/"
+	remoteRoot: "/muxe.org/dist/"
 }
+
+ftpDeploy.on('uploading', function(data) {
+	console.log('uploading', data.filename, data.percentComplete + '%');
+});
 
 ftpDeploy.deploy(config, function(err) {
 	if (err) {
