@@ -1,0 +1,36 @@
+html, body {
+	padding: 0px;
+	margin: 0px;
+	background-color: #cc99ff;
+	height: 100%;
+}
+input[type='checkbox'] {
+	margin: 0;
+	padding: 0;
+	height:13px;
+	width:13px;
+}
+
+#app {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.loader {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #cc99ff;
+}
+
+.menu {
+	font: 0px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+.checkboxCanvas {
+	font: 0px "Lucida Grande", Helvetica, Arial, sans-serif;
+	flex-grow: 1;
+}
