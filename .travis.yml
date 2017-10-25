@@ -8,6 +8,7 @@ script:
 deploy:
   provider: script
   script: node ./scripts/deploy.js $FTP_USER $FTP_PASSWORD
+  skip_cleanup: true
   on:
     branch: master
 env:
