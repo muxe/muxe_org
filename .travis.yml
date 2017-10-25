@@ -1,10 +1,16 @@
 language: node_js
-branches:
-  only:
-    - master
 node_js:
-  - "7"
+- '7'
 install:
-  - npm install
+- npm install
 script:
-  - npm run build
+- npm run build
+deploy:
+  provider: script
+  script: node ./scripts/deploy.js $FTP_USER $FTP_PASSWORD
+  on:
+    branch: master
+env:
+  global:
+  - secure: Q63rue25/koKBJbSMJnVaHl0Ed/Dtw7l0ZQwxmKkH7tY116K0nWPfTaDmEa8MmVSOHDpzaRTlFxdRCrr/kjs2RhHcAwonRdzwvHE0k/eLdmORjvmdoLSgK5YgbK4GlPOnYTaFcP4QUSJ0fxPtMxlGjtED0IXiIZmLxfF7mf6F0Qyg9aw+XUoZeVumoVNcYi0Wz9t0F5onq+AKNacndMrKxQFsFs7R437hZV15N1g1AV169bODKXDUwZIw5GLrE7hRS/pn6ziK+MPrQq3uuFry/9J5tackWcuCxLC5iwDymOI6ol9tAADXb1ugB+UJqsf5VOCUnnm8Fzoj30PiOn+Wk9VoenPu1dv0d8K7jm1Lp8R0FwiieKGTxTMeDZMfca1G6Va/Yx+3G04glL6odpM2KjJP8DJgTLenuxoF64BmaQXQ2/I0CcyyXpliEfbz3zySDfgZen0KwvOMHH47pg2qSblk/vkpnfTdi+8kimNJOcUhmagNC/fsQkSWnw9aBc+CrWahDgdYY1dRJ4MbXb/aY8+p//AvQhl+5MhZSiWlwxS7xpdDtwhV512/gWZQOcHYLDc7cDVDqrgf62kj55FRHGKx/osZdjUb5YWSS7tOfzDNDo36h+8eSnaAkc9wboLHCaR8PRvk6mTAb0MnrjHBbRWgl+UFnIhKE0Y+EhBslE=
+  - secure: Emo3rvlZJoGcmTAcfrup6UB+4pYu/KaJNWYAgQvJEu5BzPzWxHjvXJCeL7eBsvO8TijP5EiqUq8+wOqnyIIdrQ30bk+DSQlUcHzkD1lkL8NuYfyilNyWIGZJI+yuSSsLAZy/uRJu1RN/2BDRMSjS4pWdfKc94lpj1QV2QhdlrxXwDJa23nknmBxVOPu02F4TzbXLXCtZQ4xE3uVZbayjUom+CG8HMiPGpLNccfojuLTzbmE8CQMk3ORyFp/yehKRYAlSZa0RKLmvxuw06H8R8zSjEOwnuWW9uUoLB4DSt1up1em17KpOtuHfC2ho2j4sQLrcsdfJzwVV60qzXxnp4uZ6c+D94q5l80FdftncHnaNMV/ZYn2U9bFdU1wjQ4h37OPDstCzfkONTv3pmJ8urM5lLo3XKcfiUPirfuBJ8yM8JllXNKhu1GQ4yckOCYNQO3JDL75g1n56Lz11iG1JkEvNb2gv+TD6Ymt2a/pMrxBUZvnv2QOtSFBlGgqVZnJZIhaghu45yhMpAGXLPXVzIIAjgpEMf3ZeAftAjjdDXdwMNqIxS98jCLNEX1Ga8TmUxt9hlpLp/oWMWd4JRRc10MFpjmDoCCkrl4EElLnpEy4TpvRSALIOjHVHwuf987xP1mQl3vcdrXChgWhQMIgZKNn3e61t3T+DVsxHDl+CaOk=
