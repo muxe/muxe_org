@@ -1,0 +1,12 @@
+.checkboxCanvas {
+	font: 0px "Lucida Grande", Helvetica, Arial, sans-serif;
+	flex-grow: 1;
+}
+
+.checkboxContainer {
+	user-select: none;
+}
+
+.checkboxRow {
+	line-height: 0;
+}

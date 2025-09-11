@@ -1,0 +1,9 @@
+.menu {
+	font: 0px "Lucida Grande", Helvetica, Arial, sans-serif;
+	padding: 10px;
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.checkbox {
+	margin: 5px;
+}
