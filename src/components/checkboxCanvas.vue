@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 
 export default {
 	name: 'CheckboxCanvas',
@@ -30,10 +30,24 @@ export default {
 		const botLoop = ref(null)
 		const lastCheckedBox = ref({ x: 0, y: 0 })
 
-		const width = computed(() => checkboxCanvas.value?.offsetWidth || 0)
-		const height = computed(() => checkboxCanvas.value?.offsetHeight || 0)
-		const numCheckboxCols = computed(() => loading.value ? 0 : Math.floor(width.value / checkboxWidth.value))
-		const numCheckboxRows = computed(() => loading.value ? 0 : Math.floor(height.value / checkboxHeight.value))
+		const width = computed(() => window.innerWidth)
+		const height = computed(() => window.innerHeight - (checkboxCanvas.value?.offsetTop || 0))
+		const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+		const maxCells = isMobile ? 2500 : 10000 // Limit grid size on mobile
+		
+		const numCheckboxCols = computed(() => {
+			if (loading.value) return 0
+			const cols = Math.floor(width.value / checkboxWidth.value)
+			const rows = Math.floor(height.value / checkboxHeight.value)
+			return cols * rows > maxCells ? Math.floor(Math.sqrt(maxCells * cols / rows)) : cols
+		})
+		
+		const numCheckboxRows = computed(() => {
+			if (loading.value) return 0
+			const rows = Math.floor(height.value / checkboxHeight.value)
+			const cols = numCheckboxCols.value
+			return cols * rows > maxCells ? Math.floor(maxCells / cols) : rows
+		})
 
 		const init = () => {
 			checkboxWidth.value = checkboxReference.value.offsetWidth
@@ -67,11 +81,16 @@ export default {
 		const mouseUp = () => { isPressed.value = false }
 		const mouseLeave = () => { mouseUp() }
 
+		let mouseThrottle = false
 		const mouseOver = (event) => {
-			if (isPressed.value) {
-				const x = parseInt(event.target.dataset.x, 10)
-				const y = parseInt(event.target.dataset.y, 10)
-				checkMultiple(x, y, props.options.isAdding)
+			if (isPressed.value && !mouseThrottle) {
+				mouseThrottle = true
+				requestAnimationFrame(() => {
+					const x = parseInt(event.target.dataset.x, 10)
+					const y = parseInt(event.target.dataset.y, 10)
+					checkMultiple(x, y, props.options.isAdding)
+					mouseThrottle = false
+				})
 			}
 		}
 
