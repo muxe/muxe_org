@@ -8,5 +8,11 @@
 	</div>
 </template>
 
-<script src='./checkboxMenu.js'/>
+<script>
+export default {
+	name: 'CheckboxMenu',
+	props: ['options']
+}
+</script>
+
 <style scoped src='./checkboxMenu.css'/>

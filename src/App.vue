@@ -1,9 +1,35 @@
 <template>
 	<div id="app">
-		<checkbox-menu :options="options"></checkbox-menu>
-		<checkbox-canvas :options="options"></checkbox-canvas>
+		<CheckboxMenu :options="options" />
+		<CheckboxCanvas :options="options" />
 	</div>
 </template>
 
-<script src='./App.js'/>
+<script>
+import CheckboxCanvas from './components/checkboxCanvas.vue'
+import CheckboxMenu from './components/checkboxMenu.vue'
+import { reactive } from 'vue'
+
+export default {
+	name: 'App',
+	components: {
+		CheckboxCanvas,
+		CheckboxMenu
+	},
+	setup() {
+		const options = reactive({
+			mirrorMode: true,
+			isAdding: true,
+			runBot: false,
+			randomBot: false,
+			doFill: false
+		})
+
+		return {
+			options
+		}
+	}
+}
+</script>
+
 <style src='./App.css'/>
