@@ -11,7 +11,12 @@
 <script>
 export default {
 	name: 'CheckboxMenu',
-	props: ['options']
+	props: {
+		options: {
+			type: Object,
+			required: true
+		}
+	}
 }
 </script>
 

@@ -3,7 +3,7 @@
 		<input ref="checkboxReference" v-if="loading" type='checkbox' id='checkbox-reference'>
 		<div class="checkboxContainer" @mousedown="mouseDown" @mouseup="mouseUp" @mouseleave="mouseLeave">
 			<div class='checkboxRow' v-for="n in numCheckboxRows" :key="n">
-				<input v-for="m in numCheckboxCols" :key="m" class='checkbox' type='checkbox' :data-x='m' :data-y='n' :id='"checkbox-" + m + "-" + n' @change="onCheck" @mouseover="mouseOver">
+				<input v-for="m in numCheckboxCols" :key="m" class='checkbox' type='checkbox' :data-x='m' :data-y='n' :id='`checkbox-${m}-${n}`' @change="onCheck" @mouseover="mouseOver">
 			</div>
 		</div>
 	</div>
@@ -14,7 +14,12 @@ import { ref, computed, onMounted, watch } from 'vue'
 
 export default {
 	name: 'CheckboxCanvas',
-	props: ['options'],
+	props: {
+		options: {
+			type: Object,
+			required: true
+		}
+	},
 	setup(props) {
 		const checkboxCanvas = ref(null)
 		const checkboxReference = ref(null)
