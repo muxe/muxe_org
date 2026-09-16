@@ -250,25 +250,43 @@ curl -sS https://muxe.org/ | head
 | `SSH_USER` | `deploy` |
 | `SSH_KNOWN_HOSTS` | output of `ssh-keyscan -t ed25519 46.224.106.45` |
 
-### 8. Harden sshd  ⚠️ PENDING — do this carefully
+### 8. Harden sshd  ✅ APPLIED
 
-> **Status: not yet applied.** This is the one step that can lock you out.
-> Do it LAST and keep your current SSH session open the whole time.
+> **Status: applied.** Password auth and root SSH are disabled server-wide;
+> key auth only. Verified a fresh key login still works and password auth is
+> refused (`Permission denied (publickey)`).
 
-Edit `/etc/ssh/sshd_config`:
+Implemented as an Ubuntu drop-in (overrides the defaults in
+`/etc/ssh/sshd_config.d/*.conf`) at
+**`/etc/ssh/sshd_config.d/99-muxe-hardening.conf`**:
 ```
 PasswordAuthentication no
 PermitRootLogin no
 PubkeyAuthentication yes
-# Optional: AllowUsers max deploy
+```
+(No `AllowUsers` whitelist — decided against it.)
+
+Effective settings (`sudo sshd -T | grep -iE 'passwordauth|permitroot|pubkey'`):
+`passwordauthentication no`, `permitrootlogin no`, `pubkeyauthentication yes`.
+
+**If you ever need to redo this** (e.g. rebuilt box), the paste-safe apply:
+```bash
+printf '%s\n' 'PasswordAuthentication no' 'PermitRootLogin no' 'PubkeyAuthentication yes' \
+  | sudo tee /etc/ssh/sshd_config.d/99-muxe-hardening.conf >/dev/null
+sudo sshd -t && echo "CONFIG OK"     # validate BEFORE reloading
+sudo systemctl reload ssh            # reload keeps existing sessions alive
+```
+Then, **without closing your current session**, verify from a new terminal:
+```bash
+ssh hetzner 'echo OK'
+```
+If it fails, revert from the still-open session:
+```bash
+sudo rm /etc/ssh/sshd_config.d/99-muxe-hardening.conf && sudo systemctl reload ssh
 ```
 
-**Safe apply procedure:**
-1. Keep your current `ssh hetzner` session open.
-2. `sudo systemctl reload ssh`
-3. In a **separate** terminal, run `ssh hetzner` and confirm you still get in.
-4. Only close the original session once the new one works.
-5. Optional: `sudo apt install -y fail2ban` for brute-force protection.
+Optional, not applied: `sudo apt install -y fail2ban` for brute-force
+protection (defense in depth).
 
 ---
 
