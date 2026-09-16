@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+#
+# muxe.org deploy script — runs on the server as the `deploy` user.
+#
+# This is the ONLY command the CI SSH key is allowed to run (pinned via
+# command="..." in ~/.ssh/authorized_keys). It reads a gzipped tarball of the
+# built app from stdin, atomically swaps it into place, installs production
+# dependencies (there are none at runtime, but this keeps it future-proof),
+# and restarts the systemd user service.
+#
+# The CI side does roughly:
+#   tar czf - -C dist . package.json | ssh deploy@server
+# and this script receives that tarball on stdin.
+
+set -euo pipefail
+
+APP_DIR="${HOME}/muxe"
+RELEASES_DIR="${APP_DIR}/releases"
+CURRENT_LINK="${APP_DIR}/current"
+SERVICE="muxe.service"
+KEEP_RELEASES=5
+
+timestamp="$(date +%Y%m%d%H%M%S)"
+release_dir="${RELEASES_DIR}/${timestamp}"
+
+log() { echo "[deploy ${timestamp}] $*"; }
+
+mkdir -p "${RELEASES_DIR}"
+
+log "Extracting incoming build into ${release_dir}"
+mkdir -p "${release_dir}"
+# Read the tarball from stdin. --no-same-owner so files are owned by `deploy`.
+tar xzf - -C "${release_dir}" --no-same-owner
+
+# Sanity check: the artifact must contain the built entrypoint.
+if [[ ! -f "${release_dir}/dist/server.js" ]]; then
+  log "ERROR: dist/server.js missing from artifact — aborting, leaving current release untouched."
+  rm -rf "${release_dir}"
+  exit 1
+fi
+
+# Atomic symlink swap: build the new symlink then rename over the old one.
+log "Pointing 'current' -> ${release_dir}"
+ln -sfn "${release_dir}" "${CURRENT_LINK}.tmp"
+mv -Tf "${CURRENT_LINK}.tmp" "${CURRENT_LINK}"
+
+log "Restarting ${SERVICE}"
+# User service — no sudo required. Requires lingering enabled for the user
+# (loginctl enable-linger deploy) so the service runs without an active login.
+systemctl --user restart "${SERVICE}"
+
+# Give it a moment and verify it came up.
+sleep 1
+if ! systemctl --user is-active --quiet "${SERVICE}"; then
+  log "ERROR: ${SERVICE} failed to start. Recent logs:"
+  journalctl --user -u "${SERVICE}" -n 30 --no-pager || true
+  exit 1
+fi
+
+log "Pruning old releases (keeping ${KEEP_RELEASES})"
+# List releases oldest-first, drop the newest KEEP_RELEASES, remove the rest.
+(cd "${RELEASES_DIR}" && ls -1dt */ 2>/dev/null | tail -n "+$((KEEP_RELEASES + 1))" | xargs -r rm -rf)
+
+log "Deploy complete: ${release_dir}"

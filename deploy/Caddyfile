@@ -1,0 +1,30 @@
+# Caddy config for muxe.org.
+#
+# Caddy handles TLS automatically via Let's Encrypt — no cert paths needed,
+# just a valid DNS A/AAAA record pointing muxe.org at this server and ports
+# 80/443 open.
+#
+# Install:
+#   sudo cp Caddyfile /etc/caddy/Caddyfile
+#   sudo systemctl reload caddy
+
+muxe.org {
+	# Reverse-proxy to the Node app bound on localhost.
+	reverse_proxy 127.0.0.1:3000
+
+	# Compress responses.
+	encode zstd gzip
+
+	# Security headers (app also sets some; these are belt-and-suspenders).
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+}
+
+# Redirect the www subdomain to the apex (optional — remove if unused).
+www.muxe.org {
+	redir https://muxe.org{uri} permanent
+}
