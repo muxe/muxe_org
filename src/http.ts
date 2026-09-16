@@ -12,7 +12,7 @@ const SECURITY_HEADERS: Record<string, string> = {
 
 /** Pretty-print JSON so the raw API is pleasant to read in a terminal. */
 export function json(res: ServerResponse, status: number, body: unknown): void {
-  const payload = JSON.stringify(body, null, 2) + "\n";
+  const payload = `${JSON.stringify(body, null, 2)}\n`;
   res.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
     "Content-Length": Buffer.byteLength(payload),
@@ -60,10 +60,7 @@ export function prefersHtml(accept: string | undefined): boolean {
 }
 
 function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function renderPage(pretty: string): string {

@@ -1,6 +1,6 @@
 import http from "node:http";
-import { buildRouter } from "./routes.ts";
 import { normalizePath, type RequestContext } from "./router.ts";
+import { buildRouter } from "./routes.ts";
 
 const PORT = Number(process.env.PORT ?? 3000);
 // Bind to localhost by default: the app sits behind Caddy, never exposed directly.
@@ -17,7 +17,7 @@ const server = http.createServer((req, res) => {
     res,
     path,
     method,
-    accept: req.headers["accept"],
+    accept: req.headers.accept,
   };
 
   // Access log: method, path, and resulting status.
@@ -31,7 +31,7 @@ const server = http.createServer((req, res) => {
     console.error("Unhandled error:", err);
     if (!res.headersSent) {
       res.writeHead(500, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "internal_server_error" }) + "\n");
+      res.end(`${JSON.stringify({ error: "internal_server_error" })}\n`);
     }
   }
 });

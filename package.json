@@ -13,10 +13,14 @@
   "scripts": {
     "dev": "node --watch --experimental-strip-types src/server.ts",
     "typecheck": "tsc --noEmit",
+    "lint": "biome check src",
+    "lint:fix": "biome check --write src",
+    "format": "biome format --write src",
     "build": "tsc",
     "start": "node dist/server.js"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.14",
     "@types/node": "^22.10.0",
     "typescript": "^5.7.2"
   }

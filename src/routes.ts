@@ -1,6 +1,6 @@
+import { email, profile, projects, socials } from "./data.ts";
+import { html, json, prefersHtml, redirect } from "./http.ts";
 import { Router } from "./router.ts";
-import { json, redirect, html, prefersHtml } from "./http.ts";
-import { profile, socials, projects, email } from "./data.ts";
 
 /**
  * Respond with JSON, or the HTML viewer when a browser asks for it.
