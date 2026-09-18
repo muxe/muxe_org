@@ -60,6 +60,8 @@ Node app  (127.0.0.1:3000, NOT exposed publicly)
 ├── current -> releases/2026… # atomic symlink to the live release
 ├── data/                     # SQLite DB — OUTSIDE releases, survives deploys
 │   └── muxe.db               #   (+ muxe.db-wal / muxe.db-shm in WAL mode)
+├── backups/                  # pre-migration DB snapshots (newest 10 kept)
+│   └── muxe.db.20260918…     #   taken by deploy.sh before each `dbmate up`
 └── releases/
     ├── 20260916061855/       # each deploy = one timestamped dir
     │   ├── dist/server.js
@@ -73,6 +75,16 @@ The database deliberately lives in `data/`, **not** inside a release dir: the
 under a release would be lost. `deploy.sh` runs `dbmate up` against
 `data/muxe.db` (using the incoming release's migration files) *before* swapping
 the symlink and restarting, so new code never sees an un-migrated schema.
+
+**Rollback philosophy (roll forward, not back).** In production the real
+rollback mechanism is the atomic **release** swap (repoint `current` at the
+previous release — see the runbook), *not* `dbmate down`. Rolling a schema back
+after new rows exist can lose data, so migrations should be
+backward-compatible: the old and new code both work against the migrated schema
+during a deploy. `dbmate down` exists and is tested (the migration ships a
+`migrate:down`), but it's for local/dev use, not routine prod rollback. The
+pre-migration snapshot in `backups/` is the safety net if a migration ever goes
+wrong.
 
 ---
 
@@ -201,10 +213,14 @@ runtime driver. `deploy.sh` expects it at `/home/deploy/.local/bin/dbmate`.
 ```bash
 sudo -u deploy mkdir -p /home/deploy/.local/bin
 sudo -u deploy curl -fsSL -o /home/deploy/.local/bin/dbmate \
-  https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64
+  https://github.com/amacneil/dbmate/releases/download/v2.35.1/dbmate-linux-amd64
 sudo -u deploy chmod +x /home/deploy/.local/bin/dbmate
-sudo -u deploy /home/deploy/.local/bin/dbmate --version   # expect v2.x
+sudo -u deploy /home/deploy/.local/bin/dbmate --version   # expect v2.35.1
 ```
+
+The version is **pinned** (not `latest`) so dev, CI, and prod all run the same
+migration tool. It's referenced as `DBMATE_VERSION` in `deploy/deploy.sh` and
+the CI workflow — bump all three together.
 
 ### 2. Create the locked-down `deploy` user
 

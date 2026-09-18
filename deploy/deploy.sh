@@ -19,8 +19,12 @@ RELEASES_DIR="${APP_DIR}/releases"
 CURRENT_LINK="${APP_DIR}/current"
 DATA_DIR="${APP_DIR}/data"
 DB_FILE="${DATA_DIR}/muxe.db"
+BACKUPS_DIR="${APP_DIR}/backups"
 SERVICE="muxe.service"
 KEEP_RELEASES=5
+KEEP_BACKUPS=10
+# Pin dbmate: dev, CI, and prod all use the same version for reproducibility.
+DBMATE_VERSION="v2.35.1"
 
 timestamp="$(date +%Y%m%d%H%M%S)"
 release_dir="${RELEASES_DIR}/${timestamp}"
@@ -61,6 +65,30 @@ if [[ ! -x "${DBMATE}" ]]; then
   log "ERROR: dbmate not found at ${DBMATE}. Install it (see SERVER_SETUP.md) — aborting."
   rm -rf "${release_dir}"
   exit 1
+fi
+
+# Warn (don't abort) if the installed dbmate isn't the pinned version — dev,
+# CI and prod are meant to match. A mismatch is worth surfacing in the logs.
+installed_dbmate="$("${DBMATE}" --version 2>/dev/null || echo unknown)"
+if [[ "${installed_dbmate}" != *"${DBMATE_VERSION#v}"* ]]; then
+  log "WARNING: dbmate is '${installed_dbmate}', expected ${DBMATE_VERSION}."
+fi
+
+# Back up the SQLite DB before migrating — a near-free, production-grade safety
+# net. If a migration corrupts or unexpectedly drops data, the pre-migration
+# copy is right here. Only back up when the DB already exists (skip first ever
+# deploy). WAL checkpoint first so the .db file is self-contained.
+if [[ -f "${DB_FILE}" ]]; then
+  mkdir -p "${BACKUPS_DIR}"
+  backup_file="${BACKUPS_DIR}/muxe.db.${timestamp}"
+  log "Backing up ${DB_FILE} -> ${backup_file}"
+  # .backup uses SQLite's online backup API (safe on a live DB, WAL-aware).
+  if ! sqlite3 "${DB_FILE}" ".backup '${backup_file}'" 2>/dev/null; then
+    # Fall back to a plain copy if sqlite3 CLI isn't installed.
+    cp "${DB_FILE}" "${backup_file}"
+  fi
+  # Rotate: keep only the newest KEEP_BACKUPS.
+  (cd "${BACKUPS_DIR}" && ls -1t muxe.db.* 2>/dev/null | tail -n "+$((KEEP_BACKUPS + 1))" | xargs -r rm -f)
 fi
 
 log "Running migrations against ${DB_FILE}"

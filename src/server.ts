@@ -1,10 +1,7 @@
 import http from "node:http";
+import { config } from "./config.ts";
 import { normalizePath, type RequestContext } from "./router.ts";
 import { buildRouter } from "./routes.ts";
-
-const PORT = Number(process.env.PORT ?? 3000);
-// Bind to localhost by default: the app sits behind Caddy, never exposed directly.
-const HOST = process.env.HOST ?? "127.0.0.1";
 
 const router = buildRouter();
 
@@ -37,8 +34,12 @@ const server = http.createServer((req, res) => {
   }
 });
 
-server.listen(PORT, HOST, () => {
-  console.log(`muxe.org API listening on http://${HOST}:${PORT}`);
+server.listen(config.port, config.host, () => {
+  // Log the ACTUAL bound port: with PORT=0 the OS assigns one, and tests parse
+  // this line to discover it. With a fixed port it just echoes that port.
+  const addr = server.address();
+  const boundPort = typeof addr === "object" && addr ? addr.port : config.port;
+  console.log(`muxe.org API listening on http://${config.host}:${boundPort}`);
 });
 
 // Graceful shutdown so systemd restarts/deploys are clean.

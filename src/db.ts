@@ -1,6 +1,7 @@
 import { mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { config } from "./config.ts";
 import { REACTION_KEYS, type ReactionKey } from "./data.ts";
 
 /**
@@ -10,13 +11,7 @@ import { REACTION_KEYS, type ReactionKey } from "./data.ts";
  * exposes typed operations over it.
  */
 
-/**
- * Where the database lives. Configurable so dev uses a local ./data/muxe.db
- * while production points at a stable path OUTSIDE the release dirs (the
- * systemd unit sets DB_PATH=%h/muxe/data/muxe.db). Must match the path dbmate
- * migrates against.
- */
-const DB_PATH = resolve(process.env.DB_PATH ?? "./data/muxe.db");
+const DB_PATH = config.dbPath;
 
 export interface Reaction {
   key: ReactionKey;

@@ -35,6 +35,18 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Install dbmate (pinned)
+        run: |
+          # Pinned version — must match DBMATE_VERSION in deploy/deploy.sh and
+          # the install step in deploy/SERVER_SETUP.md.
+          sudo curl -fsSL -o /usr/local/bin/dbmate \
+            https://github.com/amacneil/dbmate/releases/download/v2.35.1/dbmate-linux-amd64
+          sudo chmod +x /usr/local/bin/dbmate
+          dbmate --version
+
+      - name: Integration tests
+        run: npm test
+
       - name: Prepare SSH
         run: |
           mkdir -p ~/.ssh

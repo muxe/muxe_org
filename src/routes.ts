@@ -1,3 +1,4 @@
+import { config } from "./config.ts";
 import { email, isReactionKey, profile, projects, REACTION_KEYS, socials } from "./data.ts";
 import { getReactions, incrementReaction } from "./db.ts";
 import { clientIp, html, json, prefersHtml, redirect } from "./http.ts";
@@ -28,7 +29,10 @@ export function buildRouter(): Router {
   // Rate limiter for the public write endpoint: allow a small burst then
   // ~1 request/sec sustained per client IP. Enough for a human tapping
   // reactions, stingy enough to make botting the counter pointless.
-  const reactionLimiter = new RateLimiter({ capacity: 10, refillPerSec: 1 });
+  const reactionLimiter = new RateLimiter({
+    capacity: config.rateLimit.capacity,
+    refillPerSec: config.rateLimit.refillPerSec,
+  });
 
   // Root: profile + discoverable links to everything else.
   router.get("/", (ctx) => {
