@@ -33,6 +33,23 @@ export const socials: Record<string, string> = {
   linkedin: "https://www.linkedin.com/in/max-d%C3%B6rfler-1a3687168/",
 };
 
+/**
+ * Reaction counters exposed via GET /reactions and POST /reactions/:key.
+ *
+ * A closed vocabulary on purpose: the public write endpoint accepts ONLY these
+ * keys, so there is zero free-text surface for abuse. Adding a reaction means
+ * adding a key here AND a matching row + CHECK in a new dbmate migration —
+ * the two must stay in sync.
+ */
+export const REACTION_KEYS = ["rocket", "whale", "coffee", "thumbsup"] as const;
+
+export type ReactionKey = (typeof REACTION_KEYS)[number];
+
+/** Runtime membership test that also narrows the type to ReactionKey. */
+export function isReactionKey(value: string): value is ReactionKey {
+  return (REACTION_KEYS as readonly string[]).includes(value);
+}
+
 export interface Project {
   name: string;
   description: string;

@@ -18,6 +18,7 @@ const server = http.createServer((req, res) => {
     path,
     method,
     accept: req.headers.accept,
+    params: {},
   };
 
   // Access log: method, path, and resulting status.

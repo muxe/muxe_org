@@ -1,4 +1,4 @@
-import type { ServerResponse } from "node:http";
+import type { IncomingMessage, ServerResponse } from "node:http";
 
 /**
  * Small HTTP helpers so route handlers stay declarative. Everything is
@@ -57,6 +57,23 @@ export function prefersHtml(accept: string | undefined): boolean {
   const jsonIdx = accept.indexOf("application/json");
   // If the client explicitly lists JSON before HTML, honor JSON.
   return jsonIdx === -1 || html < jsonIdx;
+}
+
+/**
+ * Best-effort client IP for rate limiting. The app only listens on localhost
+ * behind Caddy, so the socket address is always 127.0.0.1 — the real client
+ * is in X-Forwarded-For (Caddy sets it). Take the FIRST hop, which Caddy
+ * appends as the immediate downstream peer. Falls back to the socket address
+ * when the header is absent (e.g. direct local requests during dev).
+ */
+export function clientIp(req: IncomingMessage): string {
+  const xff = req.headers["x-forwarded-for"];
+  const raw = Array.isArray(xff) ? xff[0] : xff;
+  if (raw) {
+    const first = raw.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  return req.socket.remoteAddress ?? "unknown";
 }
 
 function escapeHtml(s: string): string {

@@ -17,6 +17,8 @@ set -euo pipefail
 APP_DIR="${HOME}/muxe"
 RELEASES_DIR="${APP_DIR}/releases"
 CURRENT_LINK="${APP_DIR}/current"
+DATA_DIR="${APP_DIR}/data"
+DB_FILE="${DATA_DIR}/muxe.db"
 SERVICE="muxe.service"
 KEEP_RELEASES=5
 
@@ -35,6 +37,38 @@ tar xzf - -C "${release_dir}" --no-same-owner
 # Sanity check: the artifact must contain the built entrypoint.
 if [[ ! -f "${release_dir}/dist/server.js" ]]; then
   log "ERROR: dist/server.js missing from artifact — aborting, leaving current release untouched."
+  rm -rf "${release_dir}"
+  exit 1
+fi
+
+# Sanity check: migrations must ship with the release so we can migrate.
+if [[ ! -d "${release_dir}/db/migrations" ]]; then
+  log "ERROR: db/migrations missing from artifact — aborting, leaving current release untouched."
+  rm -rf "${release_dir}"
+  exit 1
+fi
+
+# Run database migrations BEFORE swapping the symlink and restarting, so the
+# new code never runs against an un-migrated schema. dbmate is a standalone
+# binary (installed at ~/.local/bin/dbmate — see SERVER_SETUP.md). The SQLite
+# file lives in DATA_DIR, outside the release dirs, so it survives deploys.
+#
+# Migrations are additive/backward-compatible by convention, so the currently
+# running (old) release keeps working against the migrated DB until we swap.
+mkdir -p "${DATA_DIR}"
+DBMATE="${HOME}/.local/bin/dbmate"
+if [[ ! -x "${DBMATE}" ]]; then
+  log "ERROR: dbmate not found at ${DBMATE}. Install it (see SERVER_SETUP.md) — aborting."
+  rm -rf "${release_dir}"
+  exit 1
+fi
+
+log "Running migrations against ${DB_FILE}"
+if ! DATABASE_URL="sqlite:${DB_FILE}" "${DBMATE}" \
+      --migrations-dir "${release_dir}/db/migrations" \
+      --no-dump-schema \
+      up; then
+  log "ERROR: migrations failed — aborting, leaving current release live."
   rm -rf "${release_dir}"
   exit 1
 fi

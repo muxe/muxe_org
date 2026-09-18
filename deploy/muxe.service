@@ -24,6 +24,9 @@ RestartSec=2
 Environment=HOST=127.0.0.1
 Environment=PORT=3000
 Environment=NODE_ENV=production
+# SQLite lives OUTSIDE the release dirs so it survives deploys (releases/ are
+# pruned). deploy.sh runs migrations against this same path before restart.
+Environment=DB_PATH=%h/muxe/data/muxe.db
 
 # Hardening for a user service.
 NoNewPrivileges=true

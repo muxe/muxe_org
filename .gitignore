@@ -1,5 +1,11 @@
 node_modules/
 dist/
+
+# Local SQLite database (created by dbmate; schema tracked via db/schema.sql).
+data/
+*.db
+*.db-shm
+*.db-wal
 *.tgz
 muxe-build.tar.gz
 .DS_Store

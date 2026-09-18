@@ -46,11 +46,12 @@ jobs:
 
       - name: Deploy
         run: |
-          # Pack the built app + package.json and stream it to the server's
-          # forced deploy command over stdin. The server's authorized_keys
-          # pins command="deploy.sh", so whatever we send here is ignored —
-          # only the tarball on stdin matters.
-          tar czf - dist package.json \
+          # Pack the built app + package.json + migrations and stream it to
+          # the server's forced deploy command over stdin. The server's
+          # authorized_keys pins command="deploy.sh", so whatever we send here
+          # is ignored — only the tarball on stdin matters. db/ carries the
+          # dbmate migrations that deploy.sh applies before restart.
+          tar czf - dist package.json db \
             | ssh -i ~/.ssh/deploy_key \
                   -o UserKnownHostsFile=~/.ssh/known_hosts \
                   -o StrictHostKeyChecking=yes \

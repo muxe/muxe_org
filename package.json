@@ -17,7 +17,11 @@
     "lint:fix": "biome check --write src",
     "format": "biome format --write src",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "db:migrate": "dbmate --env-file .dbmate.env up",
+    "db:rollback": "dbmate --env-file .dbmate.env down",
+    "db:status": "dbmate --env-file .dbmate.env status",
+    "db:new": "dbmate --env-file .dbmate.env new"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
