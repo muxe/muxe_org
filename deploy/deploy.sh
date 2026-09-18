@@ -69,7 +69,7 @@ fi
 
 # Warn (don't abort) if the installed dbmate isn't the pinned version — dev,
 # CI and prod are meant to match. A mismatch is worth surfacing in the logs.
-installed_dbmate="$("${DBMATE}" --version 2>/dev/null || echo unknown)"
+installed_dbmate="$(cd "${HOME}" && "${DBMATE}" --version 2>/dev/null || echo unknown)"
 if [[ "${installed_dbmate}" != *"${DBMATE_VERSION#v}"* ]]; then
   log "WARNING: dbmate is '${installed_dbmate}', expected ${DBMATE_VERSION}."
 fi
@@ -92,10 +92,14 @@ if [[ -f "${DB_FILE}" ]]; then
 fi
 
 log "Running migrations against ${DB_FILE}"
-if ! DATABASE_URL="sqlite:${DB_FILE}" "${DBMATE}" \
+# Run from a directory the deploy user owns. dbmate auto-loads a .env from the
+# cwd if present; it tolerates a MISSING one, but an UNREADABLE one (e.g. if
+# invoked from someone else's home) is a hard error. DATABASE_URL is passed
+# explicitly, so no .env is needed — DATA_DIR has none.
+if ! (cd "${DATA_DIR}" && DATABASE_URL="sqlite:${DB_FILE}" "${DBMATE}" \
       --migrations-dir "${release_dir}/db/migrations" \
       --no-dump-schema \
-      up; then
+      up); then
   log "ERROR: migrations failed — aborting, leaving current release live."
   rm -rf "${release_dir}"
   exit 1

@@ -215,7 +215,8 @@ sudo -u deploy mkdir -p /home/deploy/.local/bin
 sudo -u deploy curl -fsSL -o /home/deploy/.local/bin/dbmate \
   https://github.com/amacneil/dbmate/releases/download/v2.35.1/dbmate-linux-amd64
 sudo -u deploy chmod +x /home/deploy/.local/bin/dbmate
-sudo -u deploy /home/deploy/.local/bin/dbmate --version   # expect v2.35.1
+# Run from deploy's own home so dbmate doesn't try to read a .env it can't:
+sudo -u deploy bash -c 'cd ~ && ~/.local/bin/dbmate --version'   # expect v2.35.1
 ```
 
 The version is **pinned** (not `latest`) so dev, CI, and prod all run the same
