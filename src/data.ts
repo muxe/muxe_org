@@ -10,7 +10,7 @@ export const profile = {
   bio: "Backend developer who thinks a personal website should also be a REST API.",
   location: "Germany",
   employer: {
-    name: "wapp GmbH",
+    name: "WAPP GmbH",
     url: "https://wapp.gmbh/",
   },
   // Recruiters: this field is the answer to your next question.
