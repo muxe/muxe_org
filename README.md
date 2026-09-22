@@ -17,7 +17,9 @@ thing is the Node standard library.
 | GET    | `/`          | Profile + `_links` to every other route      |
 | GET    | `/github`    | `302` redirect to GitHub                      |
 | GET    | `/linkedin`  | `302` redirect to LinkedIn                    |
+| GET    | `/experience`| Work history (JSON)                           |
 | GET    | `/projects`  | List of projects (JSON)                       |
+| GET    | `/now`       | What I'm focused on right now (JSON)          |
 | GET    | `/contact`   | Contact details (JSON)                        |
 | GET    | `/health`    | `{ "status": "ok", "uptime": ... }`           |
 
@@ -33,8 +35,9 @@ curl -sI https://muxe.org/github   # see the 302 Location header
 
 ## Editing content
 
-All content lives in [`src/data.ts`](src/data.ts): `profile`, `socials`
-(each key becomes a `/redirect` route), and `projects`. Edit those, commit, and
+All content lives in [`src/data.ts`](src/data.ts): `profile` (bio, skills,
+education), `experience`, `socials` (each key becomes a `/redirect` route),
+`projects`, and `now`. Edit those, commit, and
 the deploy pipeline ships it. The GitHub/LinkedIn URLs there are placeholders —
 update them.
 

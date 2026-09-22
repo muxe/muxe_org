@@ -1,5 +1,15 @@
 import { config } from "./config.ts";
-import { email, isReactionKey, profile, projects, REACTION_KEYS, socials } from "./data.ts";
+import {
+  email,
+  experience,
+  isReactionKey,
+  now,
+  profile,
+  projects,
+  REACTION_KEYS,
+  socials,
+  yearsOfExperience,
+} from "./data.ts";
 import { getReactions, incrementReaction } from "./db.ts";
 import { clientIp, html, json, prefersHtml, redirect } from "./http.ts";
 import { RateLimiter } from "./ratelimit.ts";
@@ -38,11 +48,14 @@ export function buildRouter(): Router {
   router.get("/", (ctx) => {
     respond(ctx, 200, {
       ...profile,
+      experienceYears: yearsOfExperience(),
       _links: {
         self: { href: "/", method: "GET" },
         github: { href: "/github", method: "GET", description: "302 redirect to GitHub" },
         linkedin: { href: "/linkedin", method: "GET", description: "302 redirect to LinkedIn" },
+        experience: { href: "/experience", method: "GET", description: "Work history" },
         projects: { href: "/projects", method: "GET" },
+        now: { href: "/now", method: "GET", description: "What I'm focused on right now" },
         reactions: { href: "/reactions", method: "GET", description: "Public reaction counts" },
         react: {
           href: "/reactions/{key}",
@@ -60,8 +73,16 @@ export function buildRouter(): Router {
     router.get(`/${key}`, (ctx) => redirect(ctx.res, url));
   }
 
+  router.get("/experience", (ctx) => {
+    respond(ctx, 200, { count: experience.length, experience });
+  });
+
   router.get("/projects", (ctx) => {
     respond(ctx, 200, { count: projects.length, projects });
+  });
+
+  router.get("/now", (ctx) => {
+    respond(ctx, 200, now);
   });
 
   // Public, persisted reaction counters. Read-anytime.
@@ -145,7 +166,9 @@ export function buildRouter(): Router {
       availableRoutes: [
         "GET /",
         ...Object.keys(socials).map((k) => `GET /${k}`),
+        "GET /experience",
         "GET /projects",
+        "GET /now",
         "GET /reactions",
         "POST /reactions/{key}",
         "GET /contact",
