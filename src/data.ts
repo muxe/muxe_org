@@ -31,13 +31,7 @@ export const profile = {
     name: "WAPP GmbH",
     url: "https://wapp.gmbh/",
   },
-  skills: [
-    "Kotlin",
-    "Node.js",
-    "Agentic Engineering",
-    "AWS",
-    "Team Leadership",
-  ],
+  skills: ["Kotlin", "Node.js", "Agentic Engineering", "AWS", "Team Leadership"],
   education: {
     school: "Freie Universität Berlin",
     degree: "B.Sc. Computer Science",
@@ -71,7 +65,7 @@ export const experience: Job[] = [
       "Full-stack work, cloud, and engineering practices for client products, owning delivery end to end.",
     highlights: [
       "One of the first here to actually put agentic engineering to work — planning, designing, and prototyping AI agent workflows for client projects.",
-      "Built an internal dev tool to package and share AI \"agent skills\" across projects, so teams stop reinventing them.",
+      'Built an internal dev tool to package and share AI "agent skills" across projects, so teams stop reinventing them.',
       "Brought automated testing and CI/CD to legacy codebases that had neither.",
       "Design and run scalable Kotlin backends (Quarkus, Spring Boot) and the AWS infra under them.",
     ],
@@ -96,8 +90,7 @@ export const experience: Job[] = [
     role: "Back End Developer",
     period: "Jul 2018 – Oct 2021",
     location: "Berlin, Germany · Hybrid",
-    summary:
-      "Built backend services in an international, agile setup across distributed teams.",
+    summary: "Built backend services in an international, agile setup across distributed teams.",
     highlights: [
       "Pushed for the boring-but-important stuff: real PR reviews, automated tests, continuous deployment.",
       "Ran and took part in the usual agile ceremonies, and shared knowledge across engineering chapters.",
@@ -184,7 +177,7 @@ export const projects: Project[] = [
   {
     name: "Agent skills toolkit",
     description:
-      "An internal dev tool for packaging and sharing AI \"agent skills\" across projects.",
+      'An internal dev tool for packaging and sharing AI "agent skills" across projects.',
     note: "Internal / client work — no public link.",
   },
 ];
