@@ -48,7 +48,10 @@ export const profile = {
 export interface Job {
   company: string;
   role: string;
-  period: string;
+  /** ISO year-month the role started, e.g. "2024-11". */
+  start: string;
+  /** ISO year-month the role ended, or null if it's the current role. */
+  end: string | null;
   location: string;
   summary: string;
   highlights: string[];
@@ -59,7 +62,8 @@ export const experience: Job[] = [
   {
     company: "WAPP GmbH",
     role: "Full Stack Engineer",
-    period: "Nov 2024 – present",
+    start: "2024-11",
+    end: null,
     location: "Bielefeld, Germany · Hybrid",
     summary:
       "Full-stack work, cloud, and engineering practices for client products, owning delivery end to end.",
@@ -74,7 +78,8 @@ export const experience: Job[] = [
   {
     company: "Yara International",
     role: "Lead Software Engineer",
-    period: "Oct 2021 – Mar 2024",
+    start: "2021-10",
+    end: "2024-03",
     location: "Remote",
     summary:
       "Led a software engineering team while staying hands-on in the architecture and the codebase.",
@@ -88,7 +93,8 @@ export const experience: Job[] = [
   {
     company: "Yara International",
     role: "Back End Developer",
-    period: "Jul 2018 – Oct 2021",
+    start: "2018-07",
+    end: "2021-10",
     location: "Berlin, Germany · Hybrid",
     summary: "Built backend services in an international, agile setup across distributed teams.",
     highlights: [
@@ -101,7 +107,8 @@ export const experience: Job[] = [
   {
     company: "Ape Unit GmbH",
     role: "Software Engineer",
-    period: "Mar 2012 – Jun 2018",
+    start: "2012-03",
+    end: "2018-06",
     location: "Berlin, Germany · On-site",
     summary:
       "Owned client projects end to end — from picking the stack to shipping — solo and with the team.",
